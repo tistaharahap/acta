@@ -73,9 +73,8 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 ```
 
 ```python
+from acta import Acta, Verbs
 import requests
-import Acta
-import Verbs
 
 req_body = Acta
 			.actor(type='user', 
@@ -91,3 +90,17 @@ requests.post('https://api.icehouse.com/acta', data=req_body)
 ```
 
 In a glance it looks complex. The number of bytes being occupied is significantly more than the REST example. But, try typing in the Python codes.
+
+### Full Text Search
+
+Search is always powerful. And full of parameters. ACTA loves complexity.
+
+#### REST
+
+`https://api.icehouse.com/search/?q=blue%20jeans&category_id=12&since_id=1400088497&excluded_item_ids=12,14,18&price_min=0&price_max=100&sort=2&sort_direction=ASC`
+
+```python
+import requests
+
+requests.get('https://api.icehouse.com/search/?q=blue%20jeans&category_id=12&since_id=1400088497&excluded_item_ids=12,14,18&price_min=0&price_max=100&sort=2&sort_direction=ASC')
+```
