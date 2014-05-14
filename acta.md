@@ -23,7 +23,7 @@ ACTA is created out of a necessity to further streamline HTTP requests fitting m
 
 With the rules in mind, ACTA is designed to be implemented and understood quickly. An example of how simple ACTA is is represented below.
 
-### Send Message - REST - HTTP POST
+### Send Message - REST
 
 `https://api.icehouse.com/messages/@john/team/chief/`
 
@@ -34,9 +34,15 @@ With the rules in mind, ACTA is designed to be implemented and understood quickl
 	}
 ```
 
+```python
+import requests
+
+requests.post('https://api.icehouse.com/messages/@john/team/chief/', data={'message': 'Hello Chief!'})
+```
+
 The URL above is an endpoint for John to send messages to his teammates. In this particular case, John wants to send a message to the user Chief. The HTTP method for this endpoint is of course POST.
 
-### Send Message - ACTA - HTTP POST
+### Send Message - ACTA
 
 `https://api.icehouse.com/acta/`
 
@@ -46,7 +52,7 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 		'actor': {
 			'username': '@me'				// > John
 		},
-		'action': 0							// Acta.SEND_MESSAGE
+		'action': 0							// Acta.SEND_MESSAGE - An enumerable predefined
 		'object': {
 			'username': 'chief'				// > Chief
 		},
@@ -58,3 +64,17 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 	}
 ```
 
+```python
+import requests
+import Acta
+
+req_body = Acta
+			.actor('@me')
+			.action(Acta.SEND_MESSAGE)
+			.object(dict(username='chief'))
+			.meta(data=dict(message='Hello Chief!'))
+
+requests.post('https://api.icehouse.com/acta', data=req_body)
+```
+
+In a glance it looks complex. The number of bytes being occupied is significantly more than the REST example. But, 
