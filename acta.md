@@ -23,7 +23,11 @@ ACTA is created out of a necessity to further streamline HTTP requests fitting m
 
 With the rules in mind, ACTA is designed to be implemented and understood quickly. An example of how simple ACTA is is represented below.
 
-### Send Message - REST
+### Sending Message
+
+Sending a message to another user is something that is common for any social network. Let's see how we can implement this with both REST and ACTA.
+
+#### REST
 
 `https://api.icehouse.com/messages/@john/team/chief/`
 
@@ -42,7 +46,7 @@ requests.post('https://api.icehouse.com/messages/@john/team/chief/', data={'mess
 
 The URL above is an endpoint for John to send messages to his teammates. In this particular case, John wants to send a message to the user Chief. The HTTP method for this endpoint is of course POST.
 
-### Send Message - ACTA
+#### ACTA
 
 `https://api.icehouse.com/acta/`
 
@@ -50,15 +54,19 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 + Request
 	{
 		'actor': {
-			'username': '@me'				// > John
+			'type': 'user'
+			'id': '@me'						// > John
 		},
-		'action': 0							// Acta.SEND_MESSAGE - An enumerable predefined
+		'action': 523						// Verbs.SEND - An enumerable predefined
 		'object': {
-			'username': 'chief'				// > Chief
+			'type': 'message'
+			'data': {
+				'body': 'Hello Client!'
+			}
 		},
 		'meta': {
 			'data': {
-				'message': 'Hello Chief!'
+				'to': 'chief'
 			}
 		}
 	}
@@ -67,14 +75,19 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 ```python
 import requests
 import Acta
+import Verbs
 
 req_body = Acta
-			.actor('@me')
-			.action(Acta.SEND_MESSAGE)
-			.object(dict(username='chief'))
-			.meta(data=dict(message='Hello Chief!'))
+			.actor(type='user', 
+				   id='@me')
+			.action(Verbs.SEND)
+			.object(type='message',
+					data=dict(body='Hello Client!'))
+			.meta(data={
+				'to': 'chief'
+			})
 
 requests.post('https://api.icehouse.com/acta', data=req_body)
 ```
 
-In a glance it looks complex. The number of bytes being occupied is significantly more than the REST example. But, 
+In a glance it looks complex. The number of bytes being occupied is significantly more than the REST example. But, try typing in the Python codes.
