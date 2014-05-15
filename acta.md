@@ -29,7 +29,7 @@ Sending a message to another user is something that is common for any social net
 
 #### REST
 
-`https://api.icehouse.com/messages/@john/team/chief/`
+`https://api.icehouse.com/messages/@john/team/chief/` - `POST`
 
 ```
 + Request
@@ -38,7 +38,7 @@ Sending a message to another user is something that is common for any social net
 	}
 ```
 
-```python
+```
 import requests
 
 requests.post('https://api.icehouse.com/messages/@john/team/chief/', data={'message': 'Hello Chief!'})
@@ -48,16 +48,16 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 
 #### ACTA
 
-`https://api.icehouse.com/acta/`
+`https://api.icehouse.com/acta/` - `POST`
 
 ```
 + Request
 	{
 		'actor': {
 			'type': 'user'
-			'id': '@me'						// > John
+			'id': '@me'
 		},
-		'action': 523						// Verbs.SEND - An enumerable predefined
+		'action': 523
 		'object': {
 			'type': 'message'
 			'data': {
@@ -72,35 +72,106 @@ The URL above is an endpoint for John to send messages to his teammates. In this
 	}
 ```
 
-```python
-from acta import Acta, Verbs
+```
+from acta import Acta, Verbs, Objects
 import requests
 
 req_body = Acta
-			.actor(type='user', 
+			.actor(type=Objects.USER, 
 				   id='@me')
 			.action(Verbs.SEND)
-			.object(type='message',
+			.object(type=Objects.MESSAGE,
 					data=dict(body='Hello Client!'))
-			.meta(data={
-				'to': 'chief'
-			})
+			.meta(data=dict(to='chief'))
 
 requests.post('https://api.icehouse.com/acta', data=req_body)
 ```
 
 In a glance it looks complex. The number of bytes being occupied is significantly more than the REST example. But, try typing in the Python codes.
 
-### Full Text Search
+### Retrieving a User Profile
 
-Search is always powerful. And full of parameters. ACTA loves complexity.
+Viewing a User Profile is basic to any social network. Let's see how we can do this with ACTA.
 
 #### REST
 
-`https://api.icehouse.com/search/?q=blue%20jeans&category_id=12&since_id=1400088497&excluded_item_ids=12,14,18&price_min=0&price_max=100&sort=2&sort_direction=ASC`
+`https://api.icehouse.com/user/john` - `GET`
 
-```python
+```
 import requests
 
-requests.get('https://api.icehouse.com/search/?q=blue%20jeans&category_id=12&since_id=1400088497&excluded_item_ids=12,14,18&price_min=0&price_max=100&sort=2&sort_direction=ASC')
+requests.get('https://api.icehouse.com/user/john')
 ```
+
+#### ACTA
+
+`https://api.icehouse.com/acta` - `POST`
+
+```
+from acta import Acta, Verbs, Objects
+import requests
+
+req_body = Acta
+			.actor(type=Objects.USER,
+				   id='@me')
+			.action(Verbs.VIEW)
+			.object(type=Objects.USER_PROFILE,
+					data=dict(to='john'))
+requests.post('https://api.icehouse.com/acta', data=req_body)
+```
+
+## Specification
+
+The specifics of ACTA are what governs how implementations should behave. When implementing ACTA, the only source of absolute truth is this document. Do not make any assumptions. There is only **one** true way for ACTA. Should any assumptions arises, raise as an Issue on Github.
+
+Every ACTA request is routed through the use of JSON objects as the request body. This JSON **must** be formed by using Acta client libraries. Do not generate the JSON request body by hand.
+
+### Terminology
+
+Terminologies in ACTA are simple enough to only consists of **4** terms. The terms are detailed in the following sub-sections.
+	
+#### Actor
+
+An actor is the subject of any activity. The type of an Actor must be a defined constant already defined with any Acta library. If it is not defined, implementers extend the library to suit to their needs. In no way should an implementation directly reference a value.
+
+```
+Code:
+	Acta.actor(type=Objects.USER,
+			   id='@me')
+	
+	Acta.actor(type=Objects.USER,
+			   id='@anon')
+
+Resulting JSON:
+	{
+		'actor': {
+			'type': 23			// Objects.USER
+			'id': '@me'
+		}
+	}
+	
+	{
+		'actor': {
+			'type': 23			// Objects.USER
+			'id': '@anon'
+		}
+	}
+```
+
+##### Reserved Actor IDs
+
+All reserved IDs are prefixed with `@`. Reserved Actor IDs are described below.
+
+```
+@anon
+	This ID does not point to any object.
+
+@me
+	This ID points to the requesting user object's identity.
+
+@friend
+	This ID still does not point to any object. But, from this ID we can 
+	know that the requesting user is a friend of @me.
+```
+
+#### Action
