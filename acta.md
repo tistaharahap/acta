@@ -170,8 +170,71 @@ All reserved IDs are prefixed with `@`. Reserved Actor IDs are described below.
 	This ID points to the requesting user object's identity.
 
 @friend
-	This ID still does not point to any object. But, from this ID we can 
-	know that the requesting user is a friend of @me.
+	This ID still does not point direcly to an object. But, from this ID we can 
+	know that the requesting user is a friend of the mentioned ID.
 ```
 
 #### Action
+
+An action is the defining part of any ACTA request. Defining as in the relationship of actors and objects. Therefore we can build a graph of possible actions which will eventually validate ACTA requests.
+
+It is mandatory that the all possible actions are predefined as **VERBS** and portrayed in an active sentence.
+
+```
+Code:
+	Acta.action(Verbs.VIEW)
+
+Resulting JSON:
+	{
+		'action': 42
+	}
+```
+
+#### Object
+
+An object is exactly the same as an actor. What differs is the relationships. All actors are objects and vice versa.
+
+```
+Code:
+	Acta.objects(type=Objects.USER,
+				 id='@me')
+```
+
+#### Meta
+
+A meta object is the placeholder for anything and everything a request will require that are not represented as Actors, Actions or Objects. The structure of a meta object is arbitrary enabling a very flexible request structure for ACTA. Other than being flexible, ACTA is aimed to accommodate complex request structures.
+
+Let's dive in into a rather complex request: search. I want to search for users with the name `batista`.
+
+```
+Code:
+	Acta
+		.actor(type=Objects.USER,
+			   id='@me')
+		.action(Verbs.SEARCH)
+		.object(type=Objects.USER)
+		.meta(data=dict(
+			q='batista',
+			offset=0,
+			row=10
+		))
+
+Resulting JSON:
+	{
+		'actor': {
+			'type': 'user'
+			'id': '@me'
+		},
+		'action': 22
+		'object': {
+			'type': 'user'
+		},
+		'meta': {
+			'data': {
+				'q': 'batista',
+				'offset': 0,
+				'row': 10
+			}
+		}
+	}
+```
